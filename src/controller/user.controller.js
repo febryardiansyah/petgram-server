@@ -8,7 +8,7 @@ const RegisterUser = (req, res) => {
   const { name, email, password,petname } = req.body;
   try {
     //check to fill all fields
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !petname) {
       console.log(name);
       return res.status(422).send({
         message: "Filed must not be empty",

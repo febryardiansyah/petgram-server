@@ -1,23 +1,25 @@
 const jwt = require('jsonwebtoken')
 const UserModel = require('../models/User')
 
-module.exports = (req,res,next) => {
+module.exports = async(req,res,next) => {
     const {authorization} = req.headers
     if(!authorization){
         res.send({message: 'You must be log in'})
     }
     const token = authorization.replace('Bearer ','')
-    console.log(token);
     jwt.verify(token,process.env.JWT_KEY,(err, result) =>{
         if(err){
             res.status(500).send({message:'You must be log in'})
         }
         const {_id} = result
-        UserModel.findById(_id).then(user =>{
+        UserModel.findById({_id}).then((user) => {
+            if(user == null) {
+                return res.send({message:'User not exist'})
+            }
             req.user = user
             next()
-        }).catch(err=>{
-            res.send({message:'User not found',err})
-        })
+        }).catch((err) => {
+            res.send({message:'User not exist'})
+        });
     })
 }
