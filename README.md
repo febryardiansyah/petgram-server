@@ -6,16 +6,20 @@
     - [x] Register
     - [x] Login
     - [x] JWT
+    - [ ] Email Validation
+    - [ ] Forgot Password
 - CRUD
     - [x] Create Post
     - [x] Delete Post
-    - [ ] Update Post
+    - [x] Update Post
     - [x] Get All Post
-    - [ ] Get User Post
+    - [x] Get User Post
 - Post
-    - [ ] Title
-    - [ ] Body
+    - [x] Title
+    - [x] Body
     - [ ] PicUrl
-    - [ ] Likes
-    - [ ] comments
+    - [ ] Like
+    - [ ] Unlike
+    - [ ] Comment
     - [ ] Posted By
+    - [ ] Delete Comment
