@@ -21,12 +21,15 @@ class PostController {
         message: "Filed must not be empty",
       });
     }
+    const now = new Date().getTime();
+    const date = now ;
     req.user.password = undefined;
     const post = new PostModel({
       title,
       body,
       picUrl,
       postedBy: req.user,
+      createdAt:date
     });
     try {
       const result = await post.save();
@@ -148,8 +151,21 @@ class PostController {
       })
   }
   DeleteComment = async (req, res) => {
-    const {postId} = req.body
-    const userId = req.user._Id
+    const {postId,commentId} = req.body
+    try {
+      PostModel.findByIdAndUpdate(postId,{
+        $pull:{comments:{_id:commentId}}
+      },{
+        new:true
+      }).exec((err,post)=>{
+        if(!post){
+          res.send({message: 'Item not found'})
+        }
+        res.send({message:'success',post})
+      })
+    } catch (error) {
+      res.json({message:error})
+    }
   }
 }
 

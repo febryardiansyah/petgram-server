@@ -17,9 +17,9 @@
 - Post
     - [x] Title
     - [x] Body
-    - [ ] PicUrl
-    - [ ] Like
-    - [ ] Unlike
-    - [ ] Comment
-    - [ ] Posted By
-    - [ ] Delete Comment
+    - [x] Like
+    - [x] Unlike
+    - [x] Comment
+    - [x] Posted By
+    - [x] Delete Comment
+    - [ ] Upload Image

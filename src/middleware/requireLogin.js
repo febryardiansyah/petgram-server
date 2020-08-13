@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
         if (user == null) {
           return res.send({ message: "User not exist" });
         }
-        console.log(user);
+        // console.log(user);
         req.user = user;
         next();
       })

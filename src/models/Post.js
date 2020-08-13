@@ -32,6 +32,9 @@ const schema = new mongoose.Schema({
     postedBy :{
         type: ObjectId,
         ref: "User"
+    },
+    createdAt: {
+        type:Date,
     }
 })
 
