@@ -1,11 +1,11 @@
 const UserModel = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const validator = require("validator")
+const validator = require("validator");
 
 const RegisterUser = (req, res) => {
   //required
-  const { name, email, password,petname } = req.body;
+  const { name, email, password, petname } = req.body;
   try {
     //check to fill all fields
     if (!name || !email || !password || !petname) {
@@ -13,11 +13,10 @@ const RegisterUser = (req, res) => {
       return res.status(422).send({
         message: "Filed must not be empty",
       });
-    }
-    else if(!validator.isEmail(email)){
-        return res.status(422).send({
-            message: "Email is not valid",
-          });
+    } else if (!validator.isEmail(email)) {
+      return res.status(422).send({
+        message: "Email is not valid",
+      });
     }
     //find existing user in database
     UserModel.findOne({ email }).then((savedUser) => {
@@ -33,10 +32,10 @@ const RegisterUser = (req, res) => {
             email,
             password: hashedPassword,
             name,
-            petname
+            petname,
           });
           user.save().then(() => {
-            res.status(200).send({ message: "success" ,user});
+            res.status(200).send({ message: "success", user });
           });
         })
         .catch((err) => {
@@ -56,10 +55,12 @@ const SignInUser = (req, res) => {
       .send({ message: "Email or password must not be empty" });
 
   UserModel.findOne({ email }).then((user) => {
-    if (!user)return res.status(404).send({ message: "Email is not valid" });
-    bcrypt.compare(password, user.password).then((result) => {
+    if (!user) return res.status(404).send({ message: "Email is not valid" });
+    bcrypt
+      .compare(password, user.password)
+      .then((result) => {
         if (result) {
-          const { _id, name, email,isEmailVerified,petname } = user;
+          const { _id, name, email, isEmailVerified, petname } = user;
           const token = jwt.sign({ _id }, process.env.JWT_KEY);
           res.status(200).send({
             message: "success",
@@ -69,7 +70,7 @@ const SignInUser = (req, res) => {
               name,
               email,
               petname,
-              isEmailVerified
+              isEmailVerified,
             },
           });
         } else {

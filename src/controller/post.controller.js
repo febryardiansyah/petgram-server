@@ -1,16 +1,15 @@
 const PostModel = require("../models/Post");
 
 class PostController {
-
   AllPost = async (req, res) => {
     try {
-        const allpost = await PostModel.find();
-        res.send({
+      const allpost = await PostModel.find();
+      res.send({
         message: "success",
         allpost,
-        });
+      });
     } catch (error) {
-        res.send({ error });
+      res.send({ error });
     }
   };
 
@@ -22,14 +21,14 @@ class PostController {
       });
     }
     const now = new Date().getTime();
-    const date = now ;
+    const date = now;
     req.user.password = undefined;
     const post = new PostModel({
       title,
       body,
       picUrl,
       postedBy: req.user,
-      createdAt:date
+      createdAt: date,
     });
     try {
       const result = await post.save();
@@ -76,97 +75,96 @@ class PostController {
   };
 
   MyPost = async (req, res) => {
-      const userId = req.user.id;
-      try {
-        const result = await PostModel.find({postedBy: userId})
-        res.send({message: "success",result})
-      } catch (error) {
-          res.send({error})
-      }
+    const userId = req.user.id;
+    try {
+      const result = await PostModel.find({ postedBy: userId });
+      res.send({ message: "success", result });
+    } catch (error) {
+      res.send({ error });
+    }
   };
 
   LikePost = async (req, res) => {
-      const userId = req.user._id
-      const {postId} = req.body
-      if(!postId){
-          res.send({message:'require postId'})
-      }
-    //   PostModel.findById({_id:postId}).exec((err,post) => {
-    //       for(let i of post.likes){
-    //           if(i.toString() === userId.toString()){
-    //               console.log(`${i} : \t ${userId}`);
-    //               return res.send({message:'already liked'})
-    //           }
-    //           const newLikes = new PostModel({likes:userId})
-    //           newLikes.save().then(result=>{
-    //             res.send({result})
-    //           }).catch(err=>{res.send(err)})
-              
-    //       }
-    //   })
-      PostModel.findByIdAndUpdate(postId,{
-          $push: {likes:userId},
-      },{
-          new:true
-      }).exec((err,post)=>{
-          if(err || !post){
-             return res.send({message:'Item not found',})
-          }
-          return res.send({message: "success",result:post})
-      })
-  }
-  UnlikePost = async (req, res)=>{
-    const userId = req.user._id
-    const {postId} = req.body
-    if(!postId){
-        res.send({message:'require postId'})
+    const userId = req.user._id;
+    const { postId } = req.body;
+    if (!postId) {
+      res.send({ message: "require postId" });
     }
-    PostModel.findByIdAndUpdate(postId,{
-        $pull: {likes:userId},
-    },{
-        new:true
-    }).exec((err,post)=>{
-        if(err || !post){
-           return res.send({message:'Item not found',})
-        }
-        return res.send({message: "success",result:post})
-    })
-  }
+    PostModel.findByIdAndUpdate(
+      postId,
+      {
+        $addToSet: { likes: userId },
+      },
+      {
+        new: true,
+      }
+    ).exec((err, post) => {
+      if (err || !post) {
+        return res.send({ message: "Item not found" });
+      }
+      return res.send({ message: "success", result: post });
+    });
+  };
+  UnlikePost = async (req, res) => {
+    const userId = req.user._id;
+    const { postId } = req.body;
+    if (!postId) {
+      res.send({ message: "require postId" });
+    }
+    PostModel.findByIdAndUpdate(
+      postId,
+      {
+        $pull: { likes: userId },
+      },
+      {
+        new: true,
+      }
+    ).exec((err, post) => {
+      if (err || !post) {
+        return res.send({ message: "Item not found" });
+      }
+      return res.send({ message: "success", result: post });
+    });
+  };
   Comment = async (req, res) => {
-      const {postId} = req.body
-      const userId = req.user._id
-      const comment ={
-          text: req.body.text,
-          postedBy: userId
+    const { postId } = req.body;
+    const userId = req.user._id;
+    const comment = {
+      text: req.body.text,
+      postedBy: userId,
+    };
+    PostModel.findByIdAndUpdate(
+      postId,
+      {
+        $push: { comments: comment },
+      },
+      {
+        new: true,
       }
-      PostModel.findByIdAndUpdate(postId,{
-          $push:{comments:comment}
-      },{
-          new:true
-      }).exec((err,post)=>{
-          if(err){
-              res.send({message:err})
-          }
-          res.send({message:'success',result:post})
-      })
-  }
+    ).exec((err, post) => {
+      if (err) {
+        return res.send({ message: err });
+      }
+      return res.send({ message: "success", result: post });
+    });
+  };
   DeleteComment = async (req, res) => {
-    const {postId,commentId} = req.body
-    try {
-      PostModel.findByIdAndUpdate(postId,{
-        $pull:{comments:{_id:commentId}}
-      },{
-        new:true
-      }).exec((err,post)=>{
-        if(!post){
-          res.send({message: 'Item not found'})
-        }
-        res.send({message:'success',post})
-      })
-    } catch (error) {
-      res.json({message:error})
-    }
-  }
+    const { postId, commentId } = req.body;
+    PostModel.findByIdAndUpdate(
+      postId,
+      {
+        $pull: { comments: { _id: commentId } },
+      },
+      {
+        new: true,
+      }
+    ).exec((err, post) => {
+      if (err) {
+        return res.send({ message: "Item not found" });
+      }
+      return res.send({ message: "success", post });
+    });
+  };
 }
 
 module.exports = new PostController();
