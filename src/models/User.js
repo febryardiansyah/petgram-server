@@ -21,6 +21,9 @@ const userSchema = mongoose.Schema({
         required: true,
     },
     isEmailVerified:Boolean,
+    profilePic:{
+        type: String,
+    }
 })
 
 const UserModel = mongoose.model('User',userSchema)

@@ -6,7 +6,7 @@
     - [x] Register
     - [x] Login
     - [x] JWT
-    - [ ] Email Validation
+    - [x] Email Verification
     - [ ] Forgot Password
 - CRUD
     - [x] Create Post

@@ -1,22 +1,19 @@
 const nodemailer = require('nodemailer')
+const template = require('./email-template')
 
-const sendEmail = ()=>{
+const sendEmail = (data)=>{
     const transporter = nodemailer.createTransport({
-        host:'smtp.gmail.com',
-        service:'gmail',
-        port: 465,
-        secure: true,
+        service:'gmail',    
         auth:{
-            type: "OAuth2",
             user:process.env.EMAIL,
             pass:process.env.PASSWORD
         }
     })
     const mailOptions = {
-        from:'febrymuhammad80@gmail.com',
-        to: 'febryardiansyah27@gmail.com',
+        from:'Petgram <febrymuhammad80@gmail.com>',
+        to: '<febryardiansyah27@gmail.com>',
         subject: 'Email Verification',
-        html: '<h1>Welcome</h1><p>That was easy!</p>'
+        html: `${template(data)}`
     }
     transporter.sendMail(mailOptions,(err,info) =>{
         if(err) {
@@ -25,5 +22,4 @@ const sendEmail = ()=>{
         console.log('email sent to : '+info);
     })
 }
-sendEmail()
 module.exports = {sendEmail}
