@@ -11,7 +11,7 @@ const sendEmail = (data)=>{
     })
     const mailOptions = {
         from:'Petgram <febrymuhammad80@gmail.com>',
-        to: '<febryardiansyah27@gmail.com>',
+        to: `${data.name} <${data.email}>`,
         subject: 'Email Verification',
         html: `${template(data)}`
     }

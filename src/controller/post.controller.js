@@ -1,4 +1,6 @@
 const PostModel = require("../models/Post");
+const UserModel = require("../models/User");
+const { baseUrl } = require("../helpers/base-url");
 
 class PostController {
   AllPost = async (req, res) => {
@@ -14,24 +16,33 @@ class PostController {
   };
 
   CreatePost = async (req, res) => {
-    const { title, body, picUrl } = req.body;
-    if (!title || !body || !picUrl) {
+    const { image } = req.files;
+    const { title, body } = req.body;
+
+    const splitedName = image.name.split(".");
+    const imageType = splitedName[splitedName.length - 1];
+    const fileName = `${req.user._id}-${Date.now()}.${imageType}`;
+    if (!title || !body || !image) {
       return res.status(422).send({
-        message: "Filed must not be empty",
+        message: "Field must not be empty",
       });
     }
-    const now = new Date().getTime();
-    const date = now;
+    const date = new Date().getTime();
+    image.mv(`./src/images/post/${fileName}`);
     req.user.password = undefined;
+    req.user.isEmailVerified = undefined;
+    req.user.profilePic = undefined;
+    req.user.followers = undefined;
+    req.user.following = undefined;
     const post = new PostModel({
       title,
       body,
-      picUrl,
+      imageUrl: `${baseUrl}image/post/${fileName}`,
       postedBy: req.user,
       createdAt: date,
     });
     try {
-      const result = await post.save();
+      const result = await (await post.save())
       res.send({
         message: "success",
         result,
@@ -164,6 +175,30 @@ class PostController {
       }
       return res.send({ message: "success", post });
     });
+  };
+  GetPostByFollowing = async (req, res) => {
+    const userId = req.user._id;
+    try {
+      const user = await UserModel.findById({
+        _id: userId,
+      });
+      if (user.following.length === 0) {
+        res.send({ message: "you must follow someone" });
+      }
+      let followingPostUser = [];
+      await Promise.all(
+        user.following.map(async (i) => {
+          const post = await PostModel.find({ postedBy: i })
+            .sort({ createdAt: -1 })
+            .lean();
+          followingPostUser.push(...post);
+          console.log(followingPostUser);
+        })
+      );
+      res.send({ message: "success", followingPostUser });
+    } catch (error) {
+      res.send({ message: error });
+    }
   };
 }
 

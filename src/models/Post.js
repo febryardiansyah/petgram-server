@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema.Types;
 
 const schema = new mongoose.Schema({
-  title: {
+title: {
     type: String,
     required: true,
   },
@@ -10,7 +10,7 @@ const schema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  picUrl: {
+  imageUrl: {
     type: String,
     required: true,
   },
