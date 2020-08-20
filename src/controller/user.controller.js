@@ -5,6 +5,7 @@ const validator = require("validator");
 const { sendEmail } = require("../helpers/email");
 const { baseUrl } = require("../helpers/base-url");
 const imageType = require("../helpers/imageType");
+const PostModel = require("../models/Post");
 
 const RegisterUser = (req, res) => {
   //required
@@ -236,7 +237,20 @@ const SearchUser = async (req, res) => {
     res.send({ status: false, message: error });
   }
 };
-
+const UserProfile = async (req, res) => {
+  try {
+    const user = await UserModel.findById({ _id: req.user._id}).lean()
+    const userPost = await PostModel.find({postedBy:req.user._id}).populate('postedBy','name')
+    .sort({createdAt: -1}).lean()
+    user.password = undefined;
+    res.send({status: true,message:'success',user:{
+      detail:user,
+      posts:userPost
+    }})
+  } catch (error) {
+    res.send({ status: false, message:error });
+  }
+}
 module.exports = {
   RegisterUser,
   SignInUser,
@@ -244,4 +258,5 @@ module.exports = {
   FollowUser,
   EditProfile,
   SearchUser,
+  UserProfile
 };
