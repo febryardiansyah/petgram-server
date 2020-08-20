@@ -5,7 +5,8 @@ const { baseUrl } = require("../helpers/base-url");
 class PostController {
   AllPost = async (req, res) => {
     try {
-      const allpost = await PostModel.find();
+      const allpost = await PostModel.find().populate('postedBy','name')
+      .populate('comments.postedBy','name').sort({createdAt:-1}).lean();
       res.send({
         status: true,
         message: "success",
@@ -90,7 +91,8 @@ class PostController {
   MyPost = async (req, res) => {
     const userId = req.user.id;
     try {
-      const result = await PostModel.find({ postedBy: userId });
+      const result = await PostModel.find({ postedBy: userId }).populate('postedBy','name')
+      .populate('comments.postedBy','name').sort({createdAt:-1}).lean();
       res.send({ status: true, message: "success", result });
     } catch (error) {
       res.send({ status: false, message: error });
@@ -191,8 +193,9 @@ class PostController {
       await Promise.all(
         user.following.map(async (i) => {
           const post = await PostModel.find({ postedBy: i })
-            .sort({ createdAt: -1 })
-            .lean();
+          .populate('postedBy','name')
+          .populate('comments.postedBy','name').sort({createdAt:-1})
+          .lean();
           followingPostUser.push(...post);
           console.log(followingPostUser);
         })

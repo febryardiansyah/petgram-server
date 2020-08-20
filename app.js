@@ -23,6 +23,9 @@ app.use(PostRoute);
 app.use("/image/profile", express.static("./src/images/profile"));
 app.use("/image/post", express.static("./src/images/post"));
 
+app.use("*", (req, res) => {
+  res.send({ status: false, message: "Endpoint not found" });
+});
 //testing requiredLogin middleware
 app.use("/test", requireLogin, (req, res) => {
   res.send({ message: "success" });
