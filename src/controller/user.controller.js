@@ -4,15 +4,13 @@ const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const { sendEmail } = require("../helpers/email");
 const { baseUrl } = require("../helpers/base-url");
+const imageType = require("../helpers/imageType");
 
 const RegisterUser = (req, res) => {
   //required
   const image = req.files.image;
   const { name, email, password, petname } = req.body;
-
-  const splitedName = image.name.split(".");
-  const imageType = splitedName[splitedName.length - 1];
-  const fileName = `${name}-${Date.now()}.${imageType}`;
+  const fileName = imageType(image,name);
   try {
     //check to fill all fields
     if (!name || !email || !password || !petname) {
@@ -164,7 +162,6 @@ const FollowUser = async (req, res) => {
 
 const EditProfile = async (req, res) => {
   const userId = req.user._id;
-
   try {
     if (!req.body.password) {
       const user = await UserModel.findByIdAndUpdate(
@@ -181,19 +178,24 @@ const EditProfile = async (req, res) => {
         message: "success changed profile",
         user: user,
       });
+    } else {
+      const hashedPassword = await bcrypt.hash(req.body.password, 12);
+      req.body.password = hashedPassword;
+      const user = await UserModel.findByIdAndUpdate(
+        { _id: userId },
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      if (!user) return res.send({ status: false, message: "User not found" });
+      res.send({
+        status: true,
+        message: "success changed profile",
+        user: user,
+      });
     }
-    const hashedPassword = await bcrypt.hash(req.body.password, 12);
-    req.body.password = hashedPassword;
-    const user = await UserModel.findByIdAndUpdate({ _id: userId }, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!user) return res.send({ status: false, message: "User not found" });
-    res.send({
-      status: true,
-      message: "success changed profile",
-      user: user,
-    });
   } catch (error) {
     console.log(error);
     res.send({ status: false, message: error.message });
@@ -201,10 +203,29 @@ const EditProfile = async (req, res) => {
 };
 
 const ChangeProfilePic = async (req, res) => {
-  const image = req.files.image;
-  const splitedName = image.name.split(".");
-  const imageType = splitedName[splitedName.length - 1];
-  const fileName = `${req.user.name}-${Date.now()}.${imageType}`;
+  const userId = req.user._id;
+  if (!req.files) {
+    res.send({ status: false, message: "Field must not be empty" });
+  }
+  try {
+    const image = req.files.image;
+    const fileName = imageType(image,req.user.name);
+    const user = await UserModel.findByIdAndUpdate(
+      { _id: userId },
+      { profilePic: `${baseUrl}image/profile/${fileName}` },
+      { new: true, runValidators: true }
+    );
+    if (!user) return res.send({ status: false, message: "User not found" });
+    image.mv(`./src/images/profile/${fileName}`);
+    res.send({
+      status: true,
+      message: "success changed profile picture",
+      result: user.profilePic,
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({ status: false, message: error.message });
+  }
 };
 
 module.exports = {
@@ -213,5 +234,5 @@ module.exports = {
   VerifyEmail,
   FollowUser,
   EditProfile,
-  ChangeProfilePic
+  ChangeProfilePic,
 };
