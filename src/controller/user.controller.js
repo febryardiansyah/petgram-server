@@ -8,9 +8,9 @@ const imageType = require("../helpers/imageType");
 
 const RegisterUser = (req, res) => {
   //required
-  const image = req.files.image;
+
   const { name, email, password, petname } = req.body;
-  const fileName = imageType(image, name);
+
   try {
     //check to fill all fields
     if (!name || !email || !password || !petname) {
@@ -33,7 +33,13 @@ const RegisterUser = (req, res) => {
           .send({ status: false, message: "user already exists" });
       }
       //move image
-      image.mv(`./src/images/profile/${fileName}`);
+      let profilePic = `${baseUrl}image/profile/no-pic.jpg`;
+      if (req.files && req.files.image) {
+        const image = req.files.image;
+        const fileName = imageType(image, name);
+        image.mv(`./src/images/profile/${fileName}`);
+        profilePic = `${baseUrl}image/profile/${fileName}`;
+      }
       //hash password and save user to database
       bcrypt
         .hash(password, 12)
@@ -44,9 +50,7 @@ const RegisterUser = (req, res) => {
             name,
             petname,
             isEmailVerified: false,
-            profilePic:
-              `${baseUrl}image/profile/${fileName}` ||
-              `${baseUrl}image/profile/no-pic.jpg`,
+            profilePic,
             followers: [],
             following: [],
           });
