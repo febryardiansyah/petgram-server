@@ -221,29 +221,19 @@ const EditProfile = async (req, res) => {
   }
 };
 
-const ChangeProfilePic = async (req, res) => {
-  const userId = req.user._id;
-  if (!req.files) {
-    res.send({ status: false, message: "Field must not be empty" });
-  }
+const SearchUser = async (req, res) => {
   try {
-    const image = req.files.image;
-    const fileName = imageType(image, req.user.name);
-    const user = await UserModel.findByIdAndUpdate(
-      { _id: userId },
-      { profilePic: `${baseUrl}image/profile/${fileName}` },
-      { new: true, runValidators: true }
-    );
-    if (!user) return res.send({ status: false, message: "User not found" });
-    image.mv(`./src/images/profile/${fileName}`);
-    res.send({
-      status: true,
-      message: "success changed profile picture",
-      result: user.profilePic,
-    });
+    const search = {
+      name:{$regex:req.query.user},
+      petname:{$regex:req.query.user}
+    }
+    const user = await UserModel.find({name:{$regex:req.query.user}});
+    if (user.length === 0) {
+      res.send({ status: false, message: "User not found" });
+    }
+    res.send({ status: true, message: "success", user });
   } catch (error) {
-    console.log(error);
-    res.send({ status: false, message: error.message });
+    res.send({ status: false, message: error });
   }
 };
 
@@ -253,5 +243,5 @@ module.exports = {
   VerifyEmail,
   FollowUser,
   EditProfile,
-  ChangeProfilePic,
+  SearchUser,
 };

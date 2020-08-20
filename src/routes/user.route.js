@@ -8,7 +8,7 @@ const {
   VerifyEmail,
   FollowUser,
   EditProfile,
-  ChangeProfilePic
+  SearchUser
 } = require("../controller/user.controller");
 
 router.post("/register", RegisterUser);
@@ -16,7 +16,7 @@ router.post("/signin", SignInUser);
 router.get("/verifyemail/:id", VerifyEmail);
 router.put("/follow/:id", requireLogin, FollowUser);
 router.put("/editprofile", requireLogin, EditProfile);
-router.put("/changepic", requireLogin, ChangeProfilePic);
+router.get("/search", SearchUser);
 
 UserRoute.use("/user", router);
 

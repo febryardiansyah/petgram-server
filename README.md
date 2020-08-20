@@ -20,6 +20,7 @@
     - [x] Edit Profile
         - [x] Profile
         - [x] Profile Picture
+    - [ ] Search User
 - Post
     - [x] Caption
     - [x] Like
