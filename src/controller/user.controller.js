@@ -46,19 +46,19 @@ const RegisterUser = (req, res) => {
             name,
             petname,
             isEmailVerified: false,
-            profilePic: `${baseUrl}image/profile/${fileName}` || `${baseUrl}image/profile/no-pic.jpg`,
-            followers:[],
-            following:[],
+            profilePic:
+              `${baseUrl}image/profile/${fileName}` ||
+              `${baseUrl}image/profile/no-pic.jpg`,
+            followers: [],
+            following: [],
           });
           user.save().then((result) => {
             sendEmail(result);
-            res
-              .status(200)
-              .send({
-                status: true,
-                message: "success, check your email",
-                user,
-              });
+            res.status(200).send({
+              status: true,
+              message: "success, check your email",
+              user,
+            });
           });
         })
         .catch((err) => {
@@ -128,27 +128,90 @@ const VerifyEmail = async (req, res) => {
   UserModel.findByIdAndUpdate(id, {
     $set: { isEmailVerified: true },
   }).exec((err, post) => {
-    if (err || !post) return res.send({ message: "User not found" });
+    if (err || !post)
+      return res.send({ status: false, message: "User not found" });
     res.send("Email Verification Success");
   });
 };
 
 const FollowUser = async (req, res) => {
   const userId = req.user._id;
-  const {id} = req.params;
+  const { id } = req.params;
   try {
-    const updateFollowers = await UserModel.findOneAndUpdate({_id:id},{
-      $addToSet:{followers:userId}
-    })
-    await UserModel.findOneAndUpdate({_id:userId},{
-      $addToSet:{following:id}
-    })
-    if(!updateFollowers){
-      res.send({ message:'user that you want to follow not found'})
+    const updateFollowers = await UserModel.findOneAndUpdate(
+      { _id: id },
+      {
+        $addToSet: { followers: userId },
+      }
+    );
+    await UserModel.findOneAndUpdate(
+      { _id: userId },
+      {
+        $addToSet: { following: id },
+      }
+    );
+    if (!updateFollowers) {
+      res.send({
+        status: false,
+        message: "user that you want to follow not found",
+      });
     }
-    res.send({ message:'sucess'})
+    res.send({ status: true, message: "sucess" });
   } catch (error) {
-    res.send({ message:error})
+    res.send({ status: false, message: error });
   }
-}
-module.exports = { RegisterUser, SignInUser, VerifyEmail,FollowUser };
+};
+
+const EditProfile = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    if (!req.body.password) {
+      const user = await UserModel.findByIdAndUpdate(
+        { _id: userId },
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      if (!user) return res.send({ status: false, message: "User not found" });
+      res.send({
+        status: true,
+        message: "success changed profile",
+        user: user,
+      });
+    }
+    const hashedPassword = await bcrypt.hash(req.body.password, 12);
+    req.body.password = hashedPassword;
+    const user = await UserModel.findByIdAndUpdate({ _id: userId }, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!user) return res.send({ status: false, message: "User not found" });
+    res.send({
+      status: true,
+      message: "success changed profile",
+      user: user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({ status: false, message: error.message });
+  }
+};
+
+const ChangeProfilePic = async (req, res) => {
+  const image = req.files.image;
+  const splitedName = image.name.split(".");
+  const imageType = splitedName[splitedName.length - 1];
+  const fileName = `${req.user.name}-${Date.now()}.${imageType}`;
+};
+
+module.exports = {
+  RegisterUser,
+  SignInUser,
+  VerifyEmail,
+  FollowUser,
+  EditProfile,
+  ChangeProfilePic
+};

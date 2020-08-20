@@ -7,22 +7,23 @@ class PostController {
     try {
       const allpost = await PostModel.find();
       res.send({
+        status: true,
         message: "success",
         allpost,
       });
     } catch (error) {
-      res.send({ error });
+      res.send({ status: false, error });
     }
   };
 
   CreatePost = async (req, res) => {
     const { image } = req.files;
-    const { title, body } = req.body;
+    const { caption } = req.body;
 
     const splitedName = image.name.split(".");
     const imageType = splitedName[splitedName.length - 1];
     const fileName = `${req.user._id}-${Date.now()}.${imageType}`;
-    if (!title || !body || !image) {
+    if (!caption || !image) {
       return res.status(422).send({
         message: "Field must not be empty",
       });
@@ -35,20 +36,20 @@ class PostController {
     req.user.followers = undefined;
     req.user.following = undefined;
     const post = new PostModel({
-      title,
-      body,
+      caption,
       imageUrl: `${baseUrl}image/post/${fileName}`,
       postedBy: req.user,
       createdAt: date,
     });
     try {
-      const result = await (await post.save())
+      const result = await await post.save();
       res.send({
+        status: true,
         message: "success",
         result,
       });
     } catch (error) {
-      res.send({ error });
+      res.send({ status: false, error });
     }
   };
 
@@ -63,25 +64,26 @@ class PostController {
           .remove()
           .then((val) =>
             res.send({
+              status: true,
               message: "success",
               deletedPost: val,
             })
           )
-          .catch((err) => res.send({ message: err }));
+          .catch((err) => res.send({ status: false, message: err }));
       }
     });
   };
 
   EditPost = async (req, res) => {
-    const { postId, title, body } = req.body;
+    const { postId, caption } = req.body;
     PostModel.findByIdAndUpdate(postId, {
-      $set: { title: title, body: body },
+      $set: { caption: caption },
     }).exec((err, post) => {
       if (err || !post) {
         console.log(err);
-        return res.send({ message: "item not found" });
+        return res.send({ status: false, message: "item not found" });
       }
-      res.send({ message: "success" });
+      res.send({ status: true, message: "success changed post" });
     });
   };
 
@@ -89,9 +91,9 @@ class PostController {
     const userId = req.user.id;
     try {
       const result = await PostModel.find({ postedBy: userId });
-      res.send({ message: "success", result });
+      res.send({ status: true, message: "success", result });
     } catch (error) {
-      res.send({ error });
+      res.send({ status: false, message: error });
     }
   };
 
@@ -111,9 +113,9 @@ class PostController {
       }
     ).exec((err, post) => {
       if (err || !post) {
-        return res.send({ message: "Item not found" });
+        return res.send({ status: false, message: "Item not found" });
       }
-      return res.send({ message: "success", result: post });
+      return res.send({ status: true, message: "success", result: post });
     });
   };
   UnlikePost = async (req, res) => {
@@ -132,9 +134,9 @@ class PostController {
       }
     ).exec((err, post) => {
       if (err || !post) {
-        return res.send({ message: "Item not found" });
+        return res.send({ status: false, message: "Item not found" });
       }
-      return res.send({ message: "success", result: post });
+      return res.send({ status: true, message: "success", result: post });
     });
   };
   Comment = async (req, res) => {
@@ -154,9 +156,9 @@ class PostController {
       }
     ).exec((err, post) => {
       if (err) {
-        return res.send({ message: err });
+        return res.send({ status: false, message: err });
       }
-      return res.send({ message: "success", result: post });
+      return res.send({ status: true, message: "success", result: post });
     });
   };
   DeleteComment = async (req, res) => {
@@ -171,9 +173,9 @@ class PostController {
       }
     ).exec((err, post) => {
       if (err) {
-        return res.send({ message: "Item not found" });
+        return res.send({ status: false, message: "Item not found" });
       }
-      return res.send({ message: "success", post });
+      return res.send({ status: true, message: "success", post });
     });
   };
   GetPostByFollowing = async (req, res) => {
@@ -195,9 +197,9 @@ class PostController {
           console.log(followingPostUser);
         })
       );
-      res.send({ message: "success", followingPostUser });
+      res.send({ status: true, message: "success", followingPostUser });
     } catch (error) {
-      res.send({ message: error });
+      res.send({ status: false, message: error });
     }
   };
 }

@@ -17,15 +17,18 @@
     - [x] Follow
     - [x] Unfollow
     - [x] Get Post Based On Following
+    - [x] Edit Profile
+        - [ ] Profile
+        - [ ] Profile Picture
 - Post
     - [x] Title
-    - [x] Body
+    - [x] Caption
     - [x] Like
     - [x] Unlike
     - [x] Comment
     - [x] Posted By
     - [x] Delete Comment
-    - [x] Upload Image
+    - [x] Upload Image ~~ must fix `req.files`
         - [x] Profile
         - [x] Post
         
