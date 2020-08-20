@@ -10,7 +10,7 @@ const RegisterUser = (req, res) => {
   //required
   const image = req.files.image;
   const { name, email, password, petname } = req.body;
-  const fileName = imageType(image,name);
+  const fileName = imageType(image, name);
   try {
     //check to fill all fields
     if (!name || !email || !password || !petname) {
@@ -163,7 +163,15 @@ const FollowUser = async (req, res) => {
 const EditProfile = async (req, res) => {
   const userId = req.user._id;
   try {
-    if (!req.body.password) {
+    let hashedPassword;
+    if (req.body.password) {
+      hashedPassword = await bcrypt.hash(req.body.password, 12);
+      req.body.password = hashedPassword;
+    } else {
+      hashedPassword = undefined;
+    }
+
+    if (!req.files) {
       const user = await UserModel.findByIdAndUpdate(
         { _id: userId },
         req.body,
@@ -179,21 +187,28 @@ const EditProfile = async (req, res) => {
         user: user,
       });
     } else {
-      const hashedPassword = await bcrypt.hash(req.body.password, 12);
-      req.body.password = hashedPassword;
-      const user = await UserModel.findByIdAndUpdate(
+      const image = req.files.image;
+      const fileName = imageType(image, req.user.name);
+      image.mv(`./src/images/profile/${fileName}`);
+
+      await UserModel.findByIdAndUpdate({ _id: userId }, req.body, {
+        new: true,
+        runValidators: true,
+      });
+
+      const update = await UserModel.findByIdAndUpdate(
         { _id: userId },
-        req.body,
+        { profilePic: `${baseUrl}image/profile/${fileName}` },
         {
           new: true,
           runValidators: true,
         }
       );
-      if (!user) return res.send({ status: false, message: "User not found" });
+
       res.send({
         status: true,
         message: "success changed profile",
-        user: user,
+        user: update,
       });
     }
   } catch (error) {
@@ -209,7 +224,7 @@ const ChangeProfilePic = async (req, res) => {
   }
   try {
     const image = req.files.image;
-    const fileName = imageType(image,req.user.name);
+    const fileName = imageType(image, req.user.name);
     const user = await UserModel.findByIdAndUpdate(
       { _id: userId },
       { profilePic: `${baseUrl}image/profile/${fileName}` },
