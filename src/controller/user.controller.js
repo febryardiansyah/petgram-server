@@ -224,33 +224,62 @@ const EditProfile = async (req, res) => {
 
 const SearchUser = async (req, res) => {
   try {
-    const search = {
-      name:{$regex:req.query.user},
-      petname:{$regex:req.query.user}
-    }
-    const user = await UserModel.find({name:{$regex:req.query.user}});
+    const user = await UserModel.find(
+      { name: { $regex: req.query.user } },
+      "name petname profilePic"
+    );
     if (user.length === 0) {
       res.send({ status: false, message: "User not found" });
     }
-    res.send({ status: true, message: "success", user });
+
+    res.send({ status: true, message: "success", users: user });
   } catch (error) {
     res.send({ status: false, message: error });
   }
 };
+
 const UserProfile = async (req, res) => {
+  const { id } = req.params;
+  _Profile(req, res, id)
+    .then((response) => {
+      return response;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
+const MyProfile = async (req, res) => {
+  _Profile(req, res, req.user._id)
+    .then((response) => {
+      return response;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
+async function _Profile(req, res, id) {
   try {
-    const user = await UserModel.findById({ _id: req.user._id}).lean()
-    const userPost = await PostModel.find({postedBy:req.user._id}).populate('postedBy','name')
-    .sort({createdAt: -1}).lean()
+    const user = await UserModel.findById({ _id: id }).lean();
+    const userPost = await PostModel.find({ postedBy: req.user._id })
+      .populate("postedBy", "name")
+      .sort({ createdAt: -1 })
+      .lean();
     user.password = undefined;
-    res.send({status: true,message:'success',user:{
-      detail:user,
-      posts:userPost
-    }})
+    res.send({
+      status: true,
+      message: "success",
+      user: {
+        detail: user,
+        posts: userPost,
+      },
+    });
   } catch (error) {
-    res.send({ status: false, message:error });
+    res.send({ status: false, message: error });
   }
 }
+
 module.exports = {
   RegisterUser,
   SignInUser,
@@ -258,5 +287,6 @@ module.exports = {
   FollowUser,
   EditProfile,
   SearchUser,
-  UserProfile
+  UserProfile,
+  MyProfile,
 };

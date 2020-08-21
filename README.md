@@ -59,3 +59,4 @@ Create file named `.env` in root directory and fill it with `.env.example`.
     ```
 
 ## Documentation
+[here](https://documenter.getpostman.com/view/10283380/T1LV83UN?version=latest)
