@@ -140,6 +140,7 @@ const VerifyEmail = async (req, res) => {
 const FollowUser = async (req, res) => {
   const userId = req.user._id;
   const { id } = req.params;
+  let isFollowed = true;
   try {
     const updateFollowers = await UserModel.findOneAndUpdate(
       { _id: id },
@@ -159,11 +160,31 @@ const FollowUser = async (req, res) => {
         message: "user that you want to follow not found",
       });
     }
-    res.send({ status: true, message: "sucess" });
+    res.send({ status: true, message: "sucess",isFollowed, });
   } catch (error) {
     res.send({ status: false, message: error });
   }
 };
+
+const UnfollowUser = async (req, res) => {
+  const userId = req.user._id;
+  const {id} = req.params;
+  let isFollowed = false;
+
+  const updateFollowers = await UserModel.findOneAndUpdate({_id:id},{
+    $pull:{followers:userId}
+  })
+  await UserModel.findByIdAndUpdate({_id:userId},{
+    $pull:{following:id}
+  })
+  if(!updateFollowers){
+    return res.send({
+      status: false,
+      message: "user that you want to unfollow not found",
+    });
+  }
+  return res.send({status: true,message: "success",isFollowed})
+}
 
 const EditProfile = async (req, res) => {
   const userId = req.user._id;
@@ -285,6 +306,7 @@ module.exports = {
   SignInUser,
   VerifyEmail,
   FollowUser,
+  UnfollowUser,
   EditProfile,
   SearchUser,
   UserProfile,

@@ -117,7 +117,8 @@ class PostController {
       if (err || !post) {
         return res.send({ status: false, message: "Item not found" });
       }
-      return res.send({ status: true, message: "success", result: post });
+      let isLiked = true
+      return res.send({ status: true, message: "success",isLiked, result: post });
     });
   };
   UnlikePost = async (req, res) => {
@@ -135,10 +136,11 @@ class PostController {
         new: true,
       }
     ).exec((err, post) => {
+      let isLiked = false;
       if (err || !post) {
         return res.send({ status: false, message: "Item not found" });
       }
-      return res.send({ status: true, message: "success", result: post });
+      return res.send({ status: true, message: "success",isLiked, result: post });
     });
   };
   Comment = async (req, res) => {
