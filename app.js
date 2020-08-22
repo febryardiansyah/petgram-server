@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const port = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
@@ -8,6 +7,7 @@ const PostRoute = require("./src/routes/post.route");
 const requireLogin = require("./src/middleware/requireLogin");
 const cors = require("cors");
 
+require("dotenv").config();
 require("./src/db/db");
 const app = express();
 
