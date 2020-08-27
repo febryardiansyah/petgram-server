@@ -23,6 +23,12 @@ app.use(PostRoute);
 app.use("/image/profile", express.static("./src/images/profile"));
 app.use("/image/post", express.static("./src/images/post"));
 
+app.use('/',(req,res) =>{
+  res.send({
+    status: "I love you, but you love him 😢",
+    message: "Welcome to Petgram Server 😳👍"
+  })
+})
 app.use("*", (req, res) => {
   res.send({ status: false, message: "Endpoint not found" });
 });

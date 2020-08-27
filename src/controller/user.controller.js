@@ -91,7 +91,7 @@ const SignInUser = (req, res) => {
       .compare(password, user.password)
       .then((result) => {
         if (result) {
-          const { _id, name, email, isEmailVerified, petname } = user;
+          const { _id,isEmailVerified } = user;
           const token = jwt.sign({ _id }, process.env.JWT_KEY);
           if (!isEmailVerified) {
             return res.send({
@@ -99,17 +99,12 @@ const SignInUser = (req, res) => {
               message: "Email must be verified",
             });
           } else {
+            user.password = undefined;
             return res.status(200).send({
               status: true,
               message: "success",
               token,
-              user: {
-                _id,
-                name,
-                email,
-                petname,
-                isEmailVerified,
-              },
+              user
             });
           }
         }
