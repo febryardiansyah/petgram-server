@@ -91,7 +91,7 @@ class PostController {
   MyPost = async (req, res) => {
     const userId = req.user.id;
     try {
-      const result = await PostModel.find({ postedBy: userId }).populate('postedBy','name')
+      const result = await PostModel.find({ postedBy: userId }).populate('postedBy','name profilePic')
       .populate('comments.postedBy','name').sort({createdAt:-1}).lean();
       res.send({ status: true, message: "success", result });
     } catch (error) {
@@ -195,7 +195,7 @@ class PostController {
       await Promise.all(
         user.following.map(async (i) => {
           const post = await PostModel.find({ postedBy: i })
-          .populate('postedBy','name')
+          .populate('postedBy','name profilePic')
           .populate('comments.postedBy','name').sort({createdAt:-1})
           .lean();
           followingPostUser.push(...post);

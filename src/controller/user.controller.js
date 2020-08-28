@@ -100,6 +100,7 @@ const SignInUser = (req, res) => {
             });
           } else {
             user.password = undefined;
+            user.profilePic = user.profilePic.replace('http://localhost:3000/','http://f112f811b1c5.ngrok.io/');
             return res.status(200).send({
               status: true,
               message: "success",
@@ -279,7 +280,7 @@ async function _Profile(req, res, id) {
   try {
     const user = await UserModel.findById({ _id: id }).lean();
     const userPost = await PostModel.find({ postedBy: req.user._id })
-      .populate("postedBy", "name")
+      .populate("postedBy", "name profilePic")
       .sort({ createdAt: -1 })
       .lean();
     user.password = undefined;
