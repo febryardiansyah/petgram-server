@@ -6,6 +6,7 @@ const { sendEmail } = require("../helpers/email");
 const { baseUrl } = require("../helpers/base-url");
 const imageType = require("../helpers/imageType");
 const PostModel = require("../models/Post");
+const uploadImage = require("../helpers/cloudinary");
 
 const RegisterUser = (req, res) => {
   //required
@@ -34,7 +35,8 @@ const RegisterUser = (req, res) => {
           .send({ status: false, message: "user already exists" });
       }
       //move image
-      let profilePic = `${baseUrl}image/profile/no-pic.jpg`;
+      let profilePic =
+        "https://res.cloudinary.com/febryar/image/upload/v1598796112/no_avatar_weaizx.jpg";
       if (req.files && req.files.image) {
         const image = req.files.image;
         const fileName = imageType(image, name);
@@ -91,7 +93,7 @@ const SignInUser = (req, res) => {
       .compare(password, user.password)
       .then((result) => {
         if (result) {
-          const { _id,isEmailVerified } = user;
+          const { _id, isEmailVerified } = user;
           const token = jwt.sign({ _id }, process.env.JWT_KEY);
           if (!isEmailVerified) {
             return res.send({
@@ -105,7 +107,7 @@ const SignInUser = (req, res) => {
               status: true,
               message: "success",
               token,
-              user
+              user,
             });
           }
         }
@@ -156,7 +158,7 @@ const FollowUser = async (req, res) => {
         message: "user that you want to follow not found",
       });
     }
-    res.send({ status: true, message: "sucess",isFollowed, });
+    res.send({ status: true, message: "sucess", isFollowed });
   } catch (error) {
     res.send({ status: false, message: error });
   }
@@ -164,23 +166,29 @@ const FollowUser = async (req, res) => {
 
 const UnfollowUser = async (req, res) => {
   const userId = req.user._id;
-  const {id} = req.params;
+  const { id } = req.params;
   let isFollowed = false;
 
-  const updateFollowers = await UserModel.findOneAndUpdate({_id:id},{
-    $pull:{followers:userId}
-  })
-  await UserModel.findByIdAndUpdate({_id:userId},{
-    $pull:{following:id}
-  })
-  if(!updateFollowers){
+  const updateFollowers = await UserModel.findOneAndUpdate(
+    { _id: id },
+    {
+      $pull: { followers: userId },
+    }
+  );
+  await UserModel.findByIdAndUpdate(
+    { _id: userId },
+    {
+      $pull: { following: id },
+    }
+  );
+  if (!updateFollowers) {
     return res.send({
       status: false,
       message: "user that you want to unfollow not found",
     });
   }
-  return res.send({status: true,message: "success",isFollowed})
-}
+  return res.send({ status: true, message: "success", isFollowed });
+};
 
 const EditProfile = async (req, res) => {
   const userId = req.user._id;
@@ -192,7 +200,6 @@ const EditProfile = async (req, res) => {
     } else {
       hashedPassword = undefined;
     }
-
     if (!req.files) {
       const user = await UserModel.findByIdAndUpdate(
         { _id: userId },
@@ -209,10 +216,10 @@ const EditProfile = async (req, res) => {
         user: user,
       });
     } else {
-      const image = req.files.image;
-      const fileName = imageType(image, req.user.name);
-      image.mv(`./src/images/profile/${fileName}`);
-
+      // const image = req.files.image;
+      // const fileName = imageType(image, req.user.name);
+      // image.mv(`./src/images/profile/${fileName}`);
+      const imageUrl = await uploadImage(req, res, "profile");
       await UserModel.findByIdAndUpdate({ _id: userId }, req.body, {
         new: true,
         runValidators: true,
@@ -220,7 +227,7 @@ const EditProfile = async (req, res) => {
 
       const update = await UserModel.findByIdAndUpdate(
         { _id: userId },
-        { profilePic: `${baseUrl}image/profile/${fileName}` },
+        { profilePic: imageUrl },
         {
           new: true,
           runValidators: true,
@@ -235,7 +242,7 @@ const EditProfile = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.send({ status: false, message: error.message });
+    res.send({ status: false, message: error });
   }
 };
 

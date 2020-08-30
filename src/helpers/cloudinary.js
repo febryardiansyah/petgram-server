@@ -17,9 +17,9 @@ module.exports = (req,res,tags) => {
         const img = path.join(`./src/images/${tags}/${fileName}`)
 
         cloudinary.config({
-            cloud_name: 'febryar', 
-            api_key: '969951493469862', 
-            api_secret: 'uyYzye2ILbuLQyuqBg81hdK4Qkw' 
+            cloud_name: process.env.CLOUD_NAME, 
+            api_key: process.env.CLOUD_KEY, 
+            api_secret: process.env.CLOUD_SECRET, 
         })
 
         const uniqeName = new Date().toISOString()
