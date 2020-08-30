@@ -2,6 +2,8 @@ const PostModel = require("../models/Post");
 const UserModel = require("../models/User");
 const { baseUrl } = require("../helpers/base-url");
 const moment = require('moment');
+const multer = require('multer')
+const uploadImage = require('../helpers/cloudinary')
 
 class PostController {
   AllPost = async (req, res) => {
@@ -19,31 +21,33 @@ class PostController {
   };
 
   CreatePost = async (req, res) => {
-    const { image } = req.files;
-    const { caption } = req.body;
 
-    const splitedName = image.name.split(".");
-    const imageType = splitedName[splitedName.length - 1];
-    const fileName = `${req.user._id}-${Date.now()}.${imageType}`;
-    if (!caption || !image) {
+    const { caption } = req.body;
+    
+    if (!caption) {
       return res.status(422).send({
-        message: "Field must not be empty",
+        status: false,
+        message: "Caption must not be empty",
       });
     }
-    const date = new Date().getTime();
-    image.mv(`./src/images/post/${fileName}`);
+
+    const createdAt = new Date().getTime();
     req.user.password = undefined;
     req.user.isEmailVerified = undefined;
     req.user.profilePic = undefined;
     req.user.followers = undefined;
     req.user.following = undefined;
-    const post = new PostModel({
-      caption,
-      imageUrl: `${baseUrl}image/post/${fileName}`,
-      postedBy: req.user,
-      createdAt: date,
-    });
+
     try {
+      const imageUrl = await uploadImage(req,res,'post')
+
+      const post = new PostModel({
+        caption,
+        imageUrl: imageUrl,
+        postedBy: req.user,
+        createdAt: createdAt,
+      });
+
       const result = await await post.save();
       res.send({
         status: true,

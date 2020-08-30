@@ -2,6 +2,9 @@ const express = require("express");
 const port = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
+const formidableMiddleware = require('express-formidable');
+const multer = require('multer')
+
 const UserRoute = require("./src/routes/user.route");
 const PostRoute = require("./src/routes/post.route");
 const requireLogin = require("./src/middleware/requireLogin");
@@ -15,7 +18,9 @@ app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(fileUpload({ createParentPath: true }));
+app.use(fileUpload({createParentPath:true}));
+// app.use(formidableMiddleware());
+
 
 app.use(UserRoute);
 app.use(PostRoute);
