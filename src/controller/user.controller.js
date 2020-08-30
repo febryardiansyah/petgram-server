@@ -100,7 +100,7 @@ const SignInUser = (req, res) => {
             });
           } else {
             user.password = undefined;
-            user.profilePic = user.profilePic.replace('http://localhost:3000/','http://f112f811b1c5.ngrok.io/');
+            // user.profilePic = user.profilePic.replace('http://localhost:3000/','http://1d78b8f32a1e.ngrok.io/');
             return res.status(200).send({
               status: true,
               message: "success",

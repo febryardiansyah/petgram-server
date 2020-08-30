@@ -1,6 +1,7 @@
 const PostModel = require("../models/Post");
 const UserModel = require("../models/User");
 const { baseUrl } = require("../helpers/base-url");
+const moment = require('moment');
 
 class PostController {
   AllPost = async (req, res) => {
@@ -184,6 +185,7 @@ class PostController {
   };
   GetPostByFollowing = async (req, res) => {
     const userId = req.user._id;
+    
     try {
       const user = await UserModel.findById({
         _id: userId,
@@ -194,14 +196,20 @@ class PostController {
       let followingPostUser = [];
       await Promise.all(
         user.following.map(async (i) => {
-          const post = await PostModel.find({ postedBy: i })
+          const post = await PostModel.find({ postedBy: i },'-__v')
           .populate('postedBy','name profilePic')
-          .populate('comments.postedBy','name').sort({createdAt:-1})
+          .populate('comments.postedBy','name profilePic').sort({createdAt:-1})
           .lean();
           followingPostUser.push(...post);
-          console.log(followingPostUser);
+          followingPostUser.map(j=>{
+            // j.imageUrl = j.imageUrl.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
+            // j.postedBy.profilePic = j.postedBy.profilePic.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
+            j.createdAt = moment(j.createdAt).fromNow(true)
+            j.isLiked = j.likes.some(like=>like.toString() === userId.toString())
+          })
         })
       );
+      // console.log(isLiked);
       res.send({ status: true, message: "success", followingPostUser });
     } catch (error) {
       res.send({ status: false, message: error });
