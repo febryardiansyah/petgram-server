@@ -13,7 +13,7 @@ router.put("/like", requireLogin, PostController.LikePost);
 router.put("/unlike", requireLogin, PostController.UnlikePost);
 router.put("/comment", requireLogin, PostController.Comment);
 router.put("/deletecomment", requireLogin, PostController.DeleteComment);
-router.get("/followingpost", PostController.GetPostByFollowing);
+router.get("/followingpost",requireLogin, PostController.GetPostByFollowing);
 
 PostRoute.use("/post", router);
 
