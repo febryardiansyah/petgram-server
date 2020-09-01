@@ -195,7 +195,8 @@ class PostController {
         _id: userId,
       });
       if (user.following.length === 0) {
-        res.send({ message: "you must follow someone" });
+        res.send({ status:'false',
+          message: "no post" });
       }
       let followingPostUser = [];
       await Promise.all(
