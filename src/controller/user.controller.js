@@ -288,7 +288,7 @@ async function _Profile(req, res, id) {
     const user = await UserModel.findById({ _id: id }).lean();
     const userPost = await PostModel.find({ postedBy: id })
       .populate("postedBy", "name profilePic")
-      .populate('comments.postedBy','name profilePic')
+      .populate("comments.postedBy", "name profilePic")
       .sort({ createdAt: -1 })
       .lean();
     user.password = undefined;

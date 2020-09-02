@@ -2,8 +2,6 @@ const express = require("express");
 const port = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
-const formidableMiddleware = require('express-formidable');
-const multer = require('multer')
 
 const UserRoute = require("./src/routes/user.route");
 const PostRoute = require("./src/routes/post.route");
@@ -18,9 +16,7 @@ app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(fileUpload({createParentPath:true}));
-// app.use(formidableMiddleware());
-
+app.use(fileUpload({ createParentPath: true }));
 
 app.use(UserRoute);
 app.use(PostRoute);
@@ -28,12 +24,12 @@ app.use(PostRoute);
 app.use("/image/profile", express.static("./src/images/profile"));
 app.use("/image/post", express.static("./src/images/post"));
 
-app.use('/',(req,res) =>{
+app.use("/", (req, res) => {
   res.send({
     status: "I love you, but you love him 😢",
-    message: "Welcome to Petgram Server 😳👍"
-  })
-})
+    message: "Welcome to Petgram Server 😳👍",
+  });
+});
 app.use("*", (req, res) => {
   res.send({ status: false, message: "Endpoint not found" });
 });

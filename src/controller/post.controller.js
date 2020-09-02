@@ -1,15 +1,18 @@
 const PostModel = require("../models/Post");
 const UserModel = require("../models/User");
 const { baseUrl } = require("../helpers/base-url");
-const moment = require('moment');
-const multer = require('multer')
-const uploadImage = require('../helpers/cloudinary')
+const moment = require("moment");
+const multer = require("multer");
+const uploadImage = require("../helpers/cloudinary");
 
 class PostController {
   AllPost = async (req, res) => {
     try {
-      const allpost = await PostModel.find().populate('postedBy','name')
-      .populate('comments.postedBy','name').sort({createdAt:-1}).lean();
+      const allpost = await PostModel.find()
+        .populate("postedBy", "name")
+        .populate("comments.postedBy", "name")
+        .sort({ createdAt: -1 })
+        .lean();
       res.send({
         status: true,
         message: "success",
@@ -21,9 +24,8 @@ class PostController {
   };
 
   CreatePost = async (req, res) => {
-
     const { caption } = req.body;
-    
+
     if (!caption) {
       return res.status(422).send({
         status: false,
@@ -39,7 +41,7 @@ class PostController {
     req.user.following = undefined;
 
     try {
-      const imageUrl = await uploadImage(req,res,'post')
+      const imageUrl = await uploadImage(req, res, "post");
 
       const post = new PostModel({
         caption,
@@ -96,8 +98,11 @@ class PostController {
   MyPost = async (req, res) => {
     const userId = req.user.id;
     try {
-      const result = await PostModel.find({ postedBy: userId }).populate('postedBy','name profilePic')
-      .populate('comments.postedBy','name').sort({createdAt:-1}).lean();
+      const result = await PostModel.find({ postedBy: userId })
+        .populate("postedBy", "name profilePic")
+        .populate("comments.postedBy", "name")
+        .sort({ createdAt: -1 })
+        .lean();
       res.send({ status: true, message: "success", result });
     } catch (error) {
       res.send({ status: false, message: error });
@@ -122,8 +127,13 @@ class PostController {
       if (err || !post) {
         return res.send({ status: false, message: "Item not found" });
       }
-      let isLiked = true
-      return res.send({ status: true, message: "success",isLiked, result: post });
+      let isLiked = true;
+      return res.send({
+        status: true,
+        message: "success",
+        isLiked,
+        result: post,
+      });
     });
   };
   UnlikePost = async (req, res) => {
@@ -145,7 +155,12 @@ class PostController {
       if (err || !post) {
         return res.send({ status: false, message: "Item not found" });
       }
-      return res.send({ status: true, message: "success",isLiked, result: post });
+      return res.send({
+        status: true,
+        message: "success",
+        isLiked,
+        result: post,
+      });
     });
   };
   Comment = async (req, res) => {
@@ -189,29 +204,31 @@ class PostController {
   };
   GetPostByFollowing = async (req, res) => {
     const userId = req.user._id;
-    
+
     try {
       const user = await UserModel.findById({
         _id: userId,
       });
       if (user.following.length === 0) {
-        res.send({ status:'false',
-          message: "no post" });
+        res.send({ status: "false", message: "no post" });
       }
       let followingPostUser = [];
       await Promise.all(
         user.following.map(async (i) => {
-          const post = await PostModel.find({ postedBy: i },'-__v')
-          .populate('postedBy','name profilePic')
-          .populate('comments.postedBy','name profilePic').sort({createdAt:-1})
-          .lean();
+          const post = await PostModel.find({ postedBy: i }, "-__v")
+            .populate("postedBy", "name profilePic")
+            .populate("comments.postedBy", "name profilePic")
+            .sort({ createdAt: -1 })
+            .lean();
           followingPostUser.push(...post);
-          followingPostUser.map(j=>{
+          followingPostUser.map((j) => {
             // j.imageUrl = j.imageUrl.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
             // j.postedBy.profilePic = j.postedBy.profilePic.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
-            j.createdAt = moment(j.createdAt).fromNow(true)
-            j.isLiked = j.likes.some(like=>like.toString() === userId.toString())
-          })
+            j.createdAt = moment(j.createdAt).fromNow(true);
+            j.isLiked = j.likes.some(
+              (like) => like.toString() === userId.toString()
+            );
+          });
         })
       );
       // console.log(isLiked);
