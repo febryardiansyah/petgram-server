@@ -274,6 +274,7 @@ const UserProfile = async (req, res) => {
 };
 
 const MyProfile = async (req, res) => {
+  const userId = req.user._id;
   _Profile(req, res, req.user._id)
     .then((response) => {
       return response;
@@ -291,7 +292,13 @@ async function _Profile(req, res, id) {
       .populate("comments.postedBy", "name profilePic")
       .sort({ createdAt: -1 })
       .lean();
+
     user.password = undefined;
+    await Promise.all(
+      userPost.map(i=>{
+        i.isLiked = i.likes.some(j=> j.toString() === req.user._id.toString());
+      })
+    )    
     res.send({
       status: true,
       message: "success",
