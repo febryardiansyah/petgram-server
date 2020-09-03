@@ -224,7 +224,7 @@ class PostController {
           followingPostUser.map((j) => {
             // j.imageUrl = j.imageUrl.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
             // j.postedBy.profilePic = j.postedBy.profilePic.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
-            j.createdAt = moment('2020-09-03T05:52:16.087Z').fromNow();
+            j.createdAt = moment(j.createdAt).fromNow();
             j.isLiked = j.likes.some(
               (like) => like.toString() === userId.toString()
             );
