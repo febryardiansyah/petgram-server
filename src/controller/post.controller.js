@@ -9,8 +9,8 @@ class PostController {
   AllPost = async (req, res) => {
     try {
       const allpost = await PostModel.find()
-        .populate("postedBy", "name")
-        .populate("comments.postedBy", "name")
+        .populate("postedBy", "name profilePic")
+        .populate("comments.postedBy", "name profilePic")
         .sort({ createdAt: -1 })
         .lean();
       res.send({
