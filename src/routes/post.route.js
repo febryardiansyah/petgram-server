@@ -14,6 +14,7 @@ router.put("/unlike", requireLogin, PostController.UnlikePost);
 router.put("/comment", requireLogin, PostController.Comment);
 router.put("/deletecomment", requireLogin, PostController.DeleteComment);
 router.get("/followingpost",requireLogin, PostController.GetPostByFollowing);
+router.get("/detailpost/:id",requireLogin, PostController.GetDetailPost);
 
 PostRoute.use("/post", router);
 

@@ -237,6 +237,20 @@ class PostController {
       res.send({ status: false, message: error });
     }
   };
+  GetDetailPost = async (req, res) => {
+    const id = req.params.id;
+    try {
+      const post = await PostModel.findById({ _id: id })
+        .populate("postedBy", "name profilePic")
+        .populate("comments.postedBy", "name profilePic")
+        .lean();
+      if(!post)res.send({status:false, message:'post not found'})
+
+      res.send({status:true, message:'success',post});
+    } catch (error) {
+      res.send({status:false, message:error})
+    }
+  };
 }
 
 module.exports = new PostController();
