@@ -239,12 +239,15 @@ class PostController {
   };
   GetDetailPost = async (req, res) => {
     const id = req.params.id;
+    const userId = req.user._id;
     try {
       const post = await PostModel.findById({ _id: id })
         .populate("postedBy", "name profilePic")
         .populate("comments.postedBy", "name profilePic")
         .lean();
       if(!post)res.send({status:false, message:'post not found'})
+
+      post.isLiked = post.likes.some((id)=> id.toString() === userId.toString())
 
       res.send({status:true, message:'success',post});
     } catch (error) {
