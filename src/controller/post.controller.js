@@ -215,7 +215,7 @@ class PostController {
       let followingPostUser = [];
       await Promise.all(
         user.following.map(async (i) => {
-          const post = await PostModel.find({ postedBy: i }, "-__v")
+          const post = await PostModel.find({ postedBy: i })
             .populate("postedBy", "name profilePic")
             .populate("comments.postedBy", "name profilePic")
             .sort({ createdAt: -1 })
@@ -224,7 +224,7 @@ class PostController {
           followingPostUser.map((j) => {
             // j.imageUrl = j.imageUrl.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
             // j.postedBy.profilePic = j.postedBy.profilePic.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
-            // j.createdAt = moment(j.createdAt).fromNow();
+            j.createdAt = moment(j.createdAt).fromNow();
             j.isLiked = j.likes.some(
               (like) => like.toString() === userId.toString()
             );
