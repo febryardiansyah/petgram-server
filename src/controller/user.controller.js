@@ -2,6 +2,7 @@ const UserModel = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
+const moment = require("moment");
 const { sendEmail } = require("../helpers/email");
 const { baseUrl } = require("../helpers/base-url");
 const imageType = require("../helpers/imageType");
@@ -298,6 +299,7 @@ async function _Profile(req, res, id) {
     await Promise.all(
       userPost.map(i=>{
         i.isLiked = i.likes.some(j=> j.toString() === req.user._id.toString());
+        i.createdAt = moment(i.createdAt).fromNow();
       })
     )    
     res.send({
