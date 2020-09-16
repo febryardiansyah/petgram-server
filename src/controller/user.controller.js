@@ -300,6 +300,9 @@ async function _Profile(req, res, id) {
       userPost.map(i=>{
         i.isLiked = i.likes.some(j=> j.toString() === req.user._id.toString());
         i.createdAt = moment(i.createdAt).fromNow();
+        i.comments.map(k =>{
+          k.isCommentbyMe = k.postedBy._id.toString() === req.user._id.toString()?true:false;
+        })
       })
     )    
     res.send({

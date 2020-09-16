@@ -7,18 +7,27 @@ const uploadImage = require("../helpers/cloudinary");
 
 class PostController {
   AllPost = async (req, res) => {
+    const userId = req.user._id;
     try {
       const allpost = await PostModel.find()
         .populate("postedBy", "name profilePic")
         .populate("comments.postedBy", "name profilePic")
         .sort({ createdAt: -1 })
         .lean();
+      await Promise.all(
+        allpost.map(post => {
+          post.comments.map(k =>{
+            k.isCommentbyMe = k.postedBy._id.toString() === userId.toString()?true:false;
+          })
+        })
+      )
       res.send({
         status: true,
         message: "success",
         allpost,
       });
     } catch (error) {
+      console.log(error);
       res.send({ status: false, error });
     }
   };
@@ -136,6 +145,7 @@ class PostController {
       });
     });
   };
+
   UnlikePost = async (req, res) => {
     const userId = req.user._id;
     const { postId } = req.body;
@@ -163,6 +173,7 @@ class PostController {
       });
     });
   };
+
   Comment = async (req, res) => {
     const { postId } = req.body;
     const userId = req.user._id;
@@ -185,6 +196,7 @@ class PostController {
       return res.send({ status: true, message: "success", result: post });
     });
   };
+
   DeleteComment = async (req, res) => {
     const { postId, commentId } = req.body;
     PostModel.findByIdAndUpdate(
@@ -202,6 +214,7 @@ class PostController {
       return res.send({ status: true, message: "success", post });
     });
   };
+
   GetPostByFollowing = async (req, res) => {
     const userId = req.user._id;
 
@@ -222,21 +235,25 @@ class PostController {
             .lean();
           followingPostUser.push(...post);
           followingPostUser.map((j) => {
-            // j.imageUrl = j.imageUrl.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
-            // j.postedBy.profilePic = j.postedBy.profilePic.replace('http://localhost:3000/','http://6db487588f77.ngrok.io/')
             j.createdAt = moment(j.createdAt).fromNow();
             j.isLiked = j.likes.some(
               (like) => like.toString() === userId.toString()
             );
+            j.comments.map((k) => {
+              k.isCommentbyMe =
+                k.postedBy._id.toString() === userId.toString() ? true : false;
+            });
           });
         })
       );
       // console.log(isLiked);
       res.send({ status: true, message: "success", followingPostUser });
     } catch (error) {
+      console.log(error);
       res.send({ status: false, message: error });
     }
   };
+  
   GetDetailPost = async (req, res) => {
     const id = req.params.id;
     const userId = req.user._id;
@@ -245,13 +262,19 @@ class PostController {
         .populate("postedBy", "name profilePic")
         .populate("comments.postedBy", "name profilePic")
         .lean();
-      if(!post)res.send({status:false, message:'post not found'})
+      if (!post) res.send({ status: false, message: "post not found" });
 
-      post.isLiked = post.likes.some((id)=> id.toString() === userId.toString())
-
-      res.send({status:true, message:'success',post});
+      post.isLiked = post.likes.some(
+        (id) => id.toString() === userId.toString()
+      );
+      await Promise.all(
+        post.comments.map(k =>{
+          k.isCommentbyMe = k.postedBy._id.toString() === userId.toString()?true:false;
+        })
+      )
+      res.send({ status: true, message: "success", post });
     } catch (error) {
-      res.send({status:false, message:error})
+      res.send({ status: false, message: error });
     }
   };
 }
