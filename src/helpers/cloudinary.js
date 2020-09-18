@@ -1,4 +1,4 @@
-module.exports = (req,res,tags) => {
+module.exports = async(req,res,tags) => {
     const multer = require('multer')
     const cloudinary = require('cloudinary').v2
     const path = require('path')
@@ -6,14 +6,14 @@ module.exports = (req,res,tags) => {
     
     const upload = multer({dest:'src/images/'}).single('image')
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         if(!req.files){
             return reject('Image must not be empty')
         }
         const image = req.files.image;
         const fileName = imageType(image,req.user._id)
 
-        image.mv(`./src/images/${tags}/${fileName}`)
+        await image.mv(`./src/images/${tags}/${fileName}`)
         const img = path.join(`./src/images/${tags}/${fileName}`)
 
         cloudinary.config({
