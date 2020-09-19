@@ -287,6 +287,7 @@ const MyProfile = async (req, res) => {
 
 async function _Profile(req, res, id) {
   try {
+    // const currentUser = await UserModel.findById({_id:req.user._id});
     const user = await UserModel.findById({ _id: id }).lean();
     const userPost = await PostModel.find({ postedBy: id })
       .populate("postedBy", "name profilePic")
@@ -294,8 +295,16 @@ async function _Profile(req, res, id) {
       .sort({ createdAt: -1 })
       .lean();
 
+    if(!user){
+      res.status(422).send({
+        status:false, message:'User Not Found'
+      })
+    }
+
     user.password = undefined;
     user.isMe = req.user._id.toString() === id.toString() ? true:false;
+    user.isFollowed = user.followers.some((i) => i.toString() === req.user._id.toString())
+    
     await Promise.all(
       userPost.map(i=>{
         i.isLiked = i.likes.some(j=> j.toString() === req.user._id.toString());
@@ -314,6 +323,7 @@ async function _Profile(req, res, id) {
       },
     });
   } catch (error) {
+    console.log(error);
     res.send({ status: false, message: error });
   }
 }

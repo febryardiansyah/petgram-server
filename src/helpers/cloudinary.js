@@ -31,31 +31,5 @@ module.exports = async(req,res,tags) => {
             }
             return resolve(result.url)
         })
-        // upload(req,res,function(err){
-        //     if(err){
-        //         console.log("upload image failed : "+err);
-        //         return reject(err);
-        //     }
-        //     if(!req.file){
-        //         reject('Image must not be empty')
-        //     }
-
-        //     const path = req.file.path
-        //     cloudinary.config({
-        //         cloud_name: 'febryar', 
-        //         api_key: '969951493469862', 
-        //         api_secret: 'uyYzye2ILbuLQyuqBg81hdK4Qkw' 
-        //     })
-
-        //     const fileName = new Date().toISOString()
-        //     cloudinary.uploader.upload(path,{
-        //         public_id:`${tags}/${fileName}`,tags:tags
-        //     },function(err,result){
-        //         if(err){
-        //             return reject(err);
-        //         }
-        //         return resolve(result.url)
-        //     })
-        // })
     })
 }
