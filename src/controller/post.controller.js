@@ -7,20 +7,27 @@ const uploadImage = require("../helpers/cloudinary");
 
 class PostController {
   AllPost = async (req, res) => {
+    let {page} = req.params;
+    page = page || 1
+    const index = page * 5
     const userId = req.user._id;
     try {
-      const allpost = await PostModel.find()
+      const allpost = await PostModel.find({},'',{
+        skip: index, limit: 5,
+      })
         .populate("postedBy", "name profilePic")
         .populate("comments.postedBy", "name profilePic")
         .sort({ createdAt: -1 })
         .lean();
       await Promise.all(
         allpost.map(post => {
+          post.createdAt = moment(post.createdAt).fromNow();
           post.comments.map(k =>{
             k.isCommentbyMe = k.postedBy._id.toString() === userId.toString()?true:false;
           })
         })
       )
+      console.log(allpost.length);
       res.send({
         status: true,
         message: "success",
@@ -217,6 +224,8 @@ class PostController {
 
   GetPostByFollowing = async (req, res) => {
     const userId = req.user._id;
+    const {page} = req.params;
+    const index = page * 5
 
     try {
       const user = await UserModel.findById({
@@ -228,25 +237,31 @@ class PostController {
       let followingPostUser = [];
       await Promise.all(
         user.following.map(async (i) => {
-          const post = await PostModel.find({ postedBy: i })
+          const post = await PostModel.find({ postedBy: i },'',{
+            limit: 5,
+            skip: index
+          })
             .populate("postedBy", "name profilePic")
             .populate("comments.postedBy", "name profilePic")
             .sort({ createdAt: -1 })
             .lean();
-          followingPostUser.push(...post);
-          followingPostUser.map((j) => {
-            j.createdAt = moment(j.createdAt).fromNow();
-            j.isLiked = j.likes.some(
-              (like) => like.toString() === userId.toString()
-            );
-            j.comments.map((k) => {
-              k.isCommentbyMe =
-                k.postedBy._id.toString() === userId.toString() ? true : false;
-            });
-          });
+          followingPostUser = post;
+          
         })
       );
-      // console.log(isLiked);
+      await Promise.all(
+        followingPostUser.map((j) => {
+          j.createdAt = moment(j.createdAt).fromNow();
+          j.isLiked = j.likes.some(
+            (like) => like.toString() === userId.toString()
+          );
+          j.comments.map((k) => {
+            k.isCommentbyMe =
+              k.postedBy._id.toString() === userId.toString() ? true : false;
+          });
+        })
+      )
+      console.log(followingPostUser.length);
       res.send({ status: true, message: "success", followingPostUser });
     } catch (error) {
       console.log(error);

@@ -4,7 +4,7 @@ const router = express.Router();
 const PostRoute = express();
 const requireLogin = require("../middleware/requireLogin");
 
-router.get("/allpost", requireLogin, PostController.AllPost);
+router.get("/allpost/:page", requireLogin, PostController.AllPost);
 router.post("/createpost", requireLogin,PostController.CreatePost);
 router.put("/editpost", requireLogin, PostController.EditPost);
 router.delete("/deletepost/:id", requireLogin, PostController.DeletePost);
@@ -13,7 +13,7 @@ router.put("/like", requireLogin, PostController.LikePost);
 router.put("/unlike", requireLogin, PostController.UnlikePost);
 router.put("/comment", requireLogin, PostController.Comment);
 router.put("/deletecomment", requireLogin, PostController.DeleteComment);
-router.get("/followingpost",requireLogin, PostController.GetPostByFollowing);
+router.get("/followingpost/:page",requireLogin, PostController.GetPostByFollowing);
 router.get("/detailpost/:id",requireLogin, PostController.GetDetailPost);
 
 PostRoute.use("/post", router);
