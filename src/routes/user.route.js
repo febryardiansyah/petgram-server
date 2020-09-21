@@ -11,7 +11,8 @@ const {
   SearchUser,
   UserProfile,
   MyProfile,
-  UnfollowUser
+  UnfollowUser,
+  ResetPassword,
 } = require("../controller/user.controller");
 
 router.post("/register", RegisterUser);
@@ -20,9 +21,10 @@ router.get("/verifyemail/:id", VerifyEmail);
 router.put("/follow/:id", requireLogin, FollowUser);
 router.put("/unfollow/:id", requireLogin, UnfollowUser);
 router.put("/editprofile", requireLogin, EditProfile);
-router.get("/search",requireLogin, SearchUser);
-router.get("/profile/:id",requireLogin, UserProfile);
-router.get("/me",requireLogin, MyProfile);
+router.get("/search", requireLogin, SearchUser);
+router.get("/profile/:id", requireLogin, UserProfile);
+router.get("/me", requireLogin, MyProfile);
+router.put("/resetpassword", ResetPassword);
 
 UserRoute.use("/user", router);
 

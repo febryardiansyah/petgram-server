@@ -3,11 +3,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const moment = require("moment");
-const { sendEmail } = require("../helpers/email");
+const { sendEmail,resetPasswordEmail } = require("../helpers/email");
 const { baseUrl } = require("../helpers/base-url");
 const imageType = require("../helpers/imageType");
 const PostModel = require("../models/Post");
 const uploadImage = require("../helpers/cloudinary");
+const crypto = require("crypto");
 
 const RegisterUser = (req, res) => {
   //required
@@ -263,6 +264,30 @@ const SearchUser = async (req, res) => {
   }
 };
 
+const ResetPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await UserModel.findOne({email});
+    let newPassword = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < 8; i++ ) {
+       newPassword += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword,12);
+    await user.updateOne({password: hashedPassword});
+    resetPasswordEmail(user,newPassword)
+
+    res.send({
+      status:true,message:'Reset password successfully',
+    })
+  } catch (error) {
+    res.send({status: false, message: error})
+  }
+}
+
 const UserProfile = async (req, res) => {
   const { id } = req.params;
   _Profile(req, res, id)
@@ -338,4 +363,5 @@ module.exports = {
   SearchUser,
   UserProfile,
   MyProfile,
+  ResetPassword,
 };
