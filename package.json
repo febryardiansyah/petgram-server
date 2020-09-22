@@ -8,8 +8,8 @@
     "dev": "MODE=DEVELOPMENT nodemon app.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Febry Ardiansyah",
+  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
@@ -24,7 +24,7 @@
     "moment": "^2.27.0",
     "mongoose": "^5.10.0",
     "multer": "^1.4.2",
-    "nodemailer" : "*",
+    "nodemailer": "^6.4.11",
     "nodemon": "^2.0.4",
     "validator": "^13.1.1"
   }
