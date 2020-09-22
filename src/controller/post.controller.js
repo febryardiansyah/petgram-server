@@ -245,7 +245,7 @@ class PostController {
             .populate("comments.postedBy", "name profilePic")
             .sort({ createdAt: -1 })
             .lean();
-          followingPostUser = post;
+          followingPostUser.push(...post);
           
         })
       );
