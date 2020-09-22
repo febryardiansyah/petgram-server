@@ -28,8 +28,8 @@ const resetPasswordEmail = (data,showPassword) =>{
     const transporter = nodemailer.createTransport({
         service:'gmail',    
         auth:{
-            user:'akununtukkirimemail@gmail.com',
-            pass:'QFbb(`DUTJZw^"h\((9~H9:'
+            user:process.env.EMAIL,
+            pass:process.env.PASSWORD
         }
     })
     const mailOptions = {
