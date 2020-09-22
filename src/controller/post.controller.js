@@ -237,7 +237,7 @@ class PostController {
       let followingPostUser = [];
       await Promise.all(
         user.following.map(async (i) => {
-          let postList = []
+          let id = [i]
           const post = await PostModel.find({ postedBy: i },'',{
             limit: 5,
             skip: index
@@ -246,8 +246,7 @@ class PostController {
             .populate("comments.postedBy", "name profilePic")
             .sort({ createdAt: -1 })
             .lean();
-          postList.push(...post);
-          followingPostUser = postList;
+          followingPostUser.push(...post);
           
         })
       );
