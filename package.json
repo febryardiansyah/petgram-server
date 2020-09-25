@@ -10,9 +10,6 @@
   "keywords": [],
   "author": "Febry Ardiansyah",
   "license": "MIT",
-  "engines": {
-    "node": "12.18.4"
-  },
   "dependencies": {
     "@tensorflow-models/mobilenet": "^2.0.4",
     "@tensorflow/tfjs": "^2.4.0",
