@@ -5,8 +5,8 @@ const moment = require("moment");
 const multer = require("multer");
 const uploadImage = require("../helpers/cloudinary");
 
-class PostController {
-  AllPost = async (req, res) => {
+
+  exports.AllPost = async (req, res) => {
     let {page} = req.params;
     page = page || 1
     const index = page * 5
@@ -37,9 +37,9 @@ class PostController {
       console.log(error);
       res.send({ status: false, error });
     }
-  };
+  }
 
-  CreatePost = async (req, res) => {
+  exports.CreatePost = async (req, res) => {
     const { caption } = req.body;
 
     if (!caption) {
@@ -75,9 +75,9 @@ class PostController {
     } catch (error) {
       res.send({ status: false, message: error});
     }
-  };
+  }
 
-  DeletePost = async (req, res) => {
+  exports.DeletePost = async (req, res) => {
     const id = req.params.id;
     PostModel.findOne({ _id: id }).exec((err, post) => {
       if (err || !post) {
@@ -96,9 +96,9 @@ class PostController {
           .catch((err) => res.send({ status: false, message: err }));
       }
     });
-  };
+  }
 
-  EditPost = async (req, res) => {
+  exports.EditPost = async (req, res) => {
     const { postId, caption } = req.body;
     PostModel.findByIdAndUpdate(postId, {
       $set: { caption: caption },
@@ -109,9 +109,9 @@ class PostController {
       }
       res.send({ status: true, message: "success changed post" });
     });
-  };
+  }
 
-  MyPost = async (req, res) => {
+  exports.MyPost = async (req, res) => {
     const userId = req.user.id;
     try {
       const result = await PostModel.find({ postedBy: userId })
@@ -123,9 +123,9 @@ class PostController {
     } catch (error) {
       res.send({ status: false, message: error });
     }
-  };
+  }
 
-  LikePost = async (req, res) => {
+  exports.LikePost = async (req, res) => {
     const userId = req.user._id;
     const { postId } = req.body;
     if (!postId) {
@@ -151,9 +151,9 @@ class PostController {
         result: post,
       });
     });
-  };
+  }
 
-  UnlikePost = async (req, res) => {
+  exports.UnlikePost = async (req, res) => {
     const userId = req.user._id;
     const { postId } = req.body;
     if (!postId) {
@@ -179,9 +179,9 @@ class PostController {
         result: post,
       });
     });
-  };
+  }
 
-  Comment = async (req, res) => {
+  exports.Comment = async (req, res) => {
     const { postId } = req.body;
     const userId = req.user._id;
     const comment = {
@@ -202,9 +202,9 @@ class PostController {
       }
       return res.send({ status: true, message: "success", result: post });
     });
-  };
+  }
 
-  DeleteComment = async (req, res) => {
+  exports.DeleteComment = async (req, res) => {
     const { postId, commentId } = req.body;
     PostModel.findByIdAndUpdate(
       postId,
@@ -220,9 +220,9 @@ class PostController {
       }
       return res.send({ status: true, message: "success", post });
     });
-  };
+  }
 
-  GetPostByFollowing = async (req, res) => {
+  exports.GetPostByFollowing = async (req, res) => {
     const userId = req.user._id;
     const {page} = req.params;
     const index = page * 5
@@ -268,9 +268,9 @@ class PostController {
       console.log(error);
       res.send({ status: false, message: error });
     }
-  };
+  }
   
-  GetDetailPost = async (req, res) => {
+  exports.GetDetailPost = async (req, res) => {
     const id = req.params.id;
     const userId = req.user._id;
     try {
@@ -292,7 +292,4 @@ class PostController {
     } catch (error) {
       res.send({ status: false, message: error });
     }
-  };
-}
-
-module.exports = new PostController();
+  }
