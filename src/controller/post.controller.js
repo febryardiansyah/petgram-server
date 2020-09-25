@@ -73,7 +73,7 @@ class PostController {
         result,
       });
     } catch (error) {
-      res.send({ status: false, error });
+      res.send({ status: false, message: error});
     }
   };
 
