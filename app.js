@@ -27,7 +27,7 @@ app.use("/image/post", express.static("./src/images/post"));
 app.use("/", (req, res) => {
   res.send({
     status: "I love you, but you love him 😢",
-    message: "",
+    message: "Welcome to Petgram Server 😳👍",
   });
 });
 app.use("*", (req, res) => {
