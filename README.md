@@ -60,14 +60,14 @@ Create file named `.env` in root directory and fill it with `.env.example`.
 4. Run server
 
 Production
-    ```bash
-    npm run start
-    ```
+```
+npm run start
+```
 
 Development
-    ```bash
-    npm run dev
-    ```
+```
+npm run dev
+```
 
 ## API Documentation
 [here](https://documenter.getpostman.com/view/10283380/T1LV83UN?version=latest)
