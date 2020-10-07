@@ -321,7 +321,7 @@ async function _Profile(req, res, id) {
       .lean();
 
     if(!user){
-      res.status(422).send({
+      return res.status(422).send({
         status:false, message:'User Not Found'
       })
     }
