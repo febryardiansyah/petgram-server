@@ -65,7 +65,7 @@ const uploadImage = require("../helpers/cloudinary");
       const post = new PostModel({
         caption,
         imageUrl: imageUrl,
-        postedBy: req.user,
+        postedBy: user,
         createdAt: createdAt,
       });
 
