@@ -69,7 +69,7 @@ const uploadImage = require("../helpers/cloudinary");
         createdAt: createdAt,
       });
 
-      const result = await await post.save();
+      const result = await post.save();
       res.send({
         status: true,
         message: "success",
