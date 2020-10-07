@@ -239,9 +239,9 @@ const uploadImage = require("../helpers/cloudinary");
       }
       let followingPostUser = [];
       await Promise.all(
-        user.following.map(async (i) => {
-          let id = [i]
-          const post = await PostModel.find({ postedBy: i },'',{
+        user.following.map(async (userId) => {
+          let id = [userId]
+          const post = await PostModel.find({ postedBy: userId },'',{
             limit: 5,
             skip: index
           })
@@ -254,14 +254,14 @@ const uploadImage = require("../helpers/cloudinary");
         })
       );
       await Promise.all(
-        followingPostUser.map((j) => {
-          j.createdAt = moment(j.createdAt).fromNow();
-          j.isLiked = j.likes.some(
-            (like) => like.toString() === userId.toString()
+        followingPostUser.map(post => {
+          post.createdAt = moment(post.createdAt).fromNow();
+          post.isLiked = post.likes.some(
+            (likeId) => likeId.toString() === userId.toString()
           );
-          j.comments.map((k) => {
-            k.isCommentbyMe =
-              k.postedBy._id.toString() === userId.toString() ? true : false;
+          post.comments.map(comment => {
+            comment.isCommentbyMe =
+              comment.postedBy._id.toString() === userId.toString() ? true : false;
           });
         })
       )
@@ -284,11 +284,11 @@ const uploadImage = require("../helpers/cloudinary");
       if (!post) res.send({ status: false, message: "post not found" });
 
       post.isLiked = post.likes.some(
-        (id) => id.toString() === userId.toString()
+        (likeId) => likeId.toString() === userId.toString()
       );
       await Promise.all(
-        post.comments.map(k =>{
-          k.isCommentbyMe = k.postedBy._id.toString() === userId.toString()?true:false;
+        post.comments.map(comment =>{
+          comment.isCommentbyMe = comment.postedBy._id.toString() === userId.toString()?true:false;
         })
       )
       res.send({ status: true, message: "success", post });
