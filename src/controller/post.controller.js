@@ -160,7 +160,7 @@ const uploadImage = require("../helpers/cloudinary");
     const userId = req.user._id;
     const { postId } = req.body;
     if (!postId) {
-      res.send({ message: "require postId" });
+      return res.send({ message: "require postId" });
     }
     PostModel.findByIdAndUpdate(
       postId,
@@ -235,7 +235,7 @@ const uploadImage = require("../helpers/cloudinary");
         _id: userId,
       });
       if (user.following.length === 0) {
-        res.send({ status: "false", message: "no post" });
+        return res.send({ status: "false", message: "no post" });
       }
       let followingPostUser = [];
       await Promise.all(
