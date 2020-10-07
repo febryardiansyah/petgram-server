@@ -50,11 +50,14 @@ const uploadImage = require("../helpers/cloudinary");
     }
 
     const createdAt = new Date().getTime();
-    req.user.password = undefined;
-    req.user.isEmailVerified = undefined;
-    req.user.profilePic = undefined;
-    req.user.followers = undefined;
-    req.user.following = undefined;
+    const user = {
+      ...req.user,
+      password: undefined,
+      isEmailVerified: undefined,
+      profilePic: undefined,
+      following: undefined,
+      followers: undefined,
+    };
 
     try {
       const imageUrl = await uploadImage(req, res, "post");
