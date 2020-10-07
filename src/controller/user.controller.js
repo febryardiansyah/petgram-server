@@ -195,13 +195,12 @@ const UnfollowUser = async (req, res) => {
 const EditProfile = async (req, res) => {
   const userId = req.user._id;
   try {
-    let hashedPassword;
+    let hashedPassword = undefined;
     if (req.body.password) {
       hashedPassword = await bcrypt.hash(req.body.password, 12);
       req.body.password = hashedPassword;
-    } else {
-      hashedPassword = undefined;
     }
+    
     if (!req.files) {
       const user = await UserModel.findByIdAndUpdate(
         { _id: userId },
