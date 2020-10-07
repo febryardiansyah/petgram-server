@@ -328,14 +328,14 @@ async function _Profile(req, res, id) {
 
     user.password = undefined;
     user.isMe = req.user._id.toString() === id.toString() ? true:false;
-    user.isFollowed = user.followers.some((i) => i.toString() === req.user._id.toString())
+    user.isFollowed = user.followers.some(followerId => followerId.toString() === req.user._id.toString())
     
     await Promise.all(
-      userPost.map(i=>{
-        i.isLiked = i.likes.some(j=> j.toString() === req.user._id.toString());
-        i.createdAt = moment(i.createdAt).fromNow();
-        i.comments.map(k =>{
-          k.isCommentbyMe = k.postedBy._id.toString() === req.user._id.toString()?true:false;
+      userPost.map(post => {
+        post.isLiked = post.likes.some(likeId => likeId.toString() === req.user._id.toString());
+        post.createdAt = moment(post.createdAt).fromNow();
+        post.comments.map(comment =>{
+          comment.isCommentbyMe = comment.postedBy._id.toString() === req.user._id.toString()?true:false;
         })
       })
     )    
