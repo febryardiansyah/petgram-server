@@ -50,11 +50,14 @@ const uploadImage = require("../helpers/cloudinary");
     }
 
     const createdAt = new Date().getTime();
-    req.user.password = undefined;
-    req.user.isEmailVerified = undefined;
-    req.user.profilePic = undefined;
-    req.user.followers = undefined;
-    req.user.following = undefined;
+    const user = {
+      ...req.user,
+      password: undefined,
+      isEmailVerified: undefined,
+      profilePic: undefined,
+      following: undefined,
+      followers: undefined,
+    };
 
     try {
       const imageUrl = await uploadImage(req, res, "post");
@@ -62,11 +65,11 @@ const uploadImage = require("../helpers/cloudinary");
       const post = new PostModel({
         caption,
         imageUrl: imageUrl,
-        postedBy: req.user,
+        postedBy: user,
         createdAt: createdAt,
       });
 
-      const result = await await post.save();
+      const result = await post.save();
       res.send({
         status: true,
         message: "success",
@@ -157,7 +160,7 @@ const uploadImage = require("../helpers/cloudinary");
     const userId = req.user._id;
     const { postId } = req.body;
     if (!postId) {
-      res.send({ message: "require postId" });
+      return res.send({ message: "require postId" });
     }
     PostModel.findByIdAndUpdate(
       postId,
@@ -232,13 +235,13 @@ const uploadImage = require("../helpers/cloudinary");
         _id: userId,
       });
       if (user.following.length === 0) {
-        res.send({ status: "false", message: "no post" });
+        return res.send({ status: "false", message: "no post" });
       }
       let followingPostUser = [];
       await Promise.all(
-        user.following.map(async (i) => {
-          let id = [i]
-          const post = await PostModel.find({ postedBy: i },'',{
+        user.following.map(async (userId) => {
+          let id = [userId]
+          const post = await PostModel.find({ postedBy: userId },'',{
             limit: 5,
             skip: index
           })
@@ -251,14 +254,14 @@ const uploadImage = require("../helpers/cloudinary");
         })
       );
       await Promise.all(
-        followingPostUser.map((j) => {
-          j.createdAt = moment(j.createdAt).fromNow();
-          j.isLiked = j.likes.some(
-            (like) => like.toString() === userId.toString()
+        followingPostUser.map(post => {
+          post.createdAt = moment(post.createdAt).fromNow();
+          post.isLiked = post.likes.some(
+            (likeId) => likeId.toString() === userId.toString()
           );
-          j.comments.map((k) => {
-            k.isCommentbyMe =
-              k.postedBy._id.toString() === userId.toString() ? true : false;
+          post.comments.map(comment => {
+            comment.isCommentbyMe =
+              comment.postedBy._id.toString() === userId.toString() ? true : false;
           });
         })
       )
@@ -281,11 +284,11 @@ const uploadImage = require("../helpers/cloudinary");
       if (!post) res.send({ status: false, message: "post not found" });
 
       post.isLiked = post.likes.some(
-        (id) => id.toString() === userId.toString()
+        (likeId) => likeId.toString() === userId.toString()
       );
       await Promise.all(
-        post.comments.map(k =>{
-          k.isCommentbyMe = k.postedBy._id.toString() === userId.toString()?true:false;
+        post.comments.map(comment =>{
+          comment.isCommentbyMe = comment.postedBy._id.toString() === userId.toString()?true:false;
         })
       )
       res.send({ status: true, message: "success", post });

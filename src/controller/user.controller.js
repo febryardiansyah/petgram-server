@@ -195,13 +195,12 @@ const UnfollowUser = async (req, res) => {
 const EditProfile = async (req, res) => {
   const userId = req.user._id;
   try {
-    let hashedPassword;
+    let hashedPassword = undefined;
     if (req.body.password) {
       hashedPassword = await bcrypt.hash(req.body.password, 12);
       req.body.password = hashedPassword;
-    } else {
-      hashedPassword = undefined;
     }
+    
     if (!req.files) {
       const user = await UserModel.findByIdAndUpdate(
         { _id: userId },
@@ -321,21 +320,21 @@ async function _Profile(req, res, id) {
       .lean();
 
     if(!user){
-      res.status(422).send({
+      return res.status(422).send({
         status:false, message:'User Not Found'
       })
     }
 
     user.password = undefined;
     user.isMe = req.user._id.toString() === id.toString() ? true:false;
-    user.isFollowed = user.followers.some((i) => i.toString() === req.user._id.toString())
+    user.isFollowed = user.followers.some(followerId => followerId.toString() === req.user._id.toString())
     
     await Promise.all(
-      userPost.map(i=>{
-        i.isLiked = i.likes.some(j=> j.toString() === req.user._id.toString());
-        i.createdAt = moment(i.createdAt).fromNow();
-        i.comments.map(k =>{
-          k.isCommentbyMe = k.postedBy._id.toString() === req.user._id.toString()?true:false;
+      userPost.map(post => {
+        post.isLiked = post.likes.some(likeId => likeId.toString() === req.user._id.toString());
+        post.createdAt = moment(post.createdAt).fromNow();
+        post.comments.map(comment =>{
+          comment.isCommentbyMe = comment.postedBy._id.toString() === req.user._id.toString()?true:false;
         })
       })
     )    
